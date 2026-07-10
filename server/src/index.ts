@@ -1,5 +1,5 @@
-import { buildApp } from "./app.js";
-import { loadConfig } from "./config.js";
+import { buildApp } from "./app.ts";
+import { loadConfig } from "./config.ts";
 
 const config = loadConfig();
 const app = buildApp({ logger: { level: config.logLevel } });

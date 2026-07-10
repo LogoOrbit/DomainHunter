@@ -13,7 +13,7 @@ DomainHunter AI is a local-first research workspace for discovering and prioriti
 2. Start PostgreSQL with `docker compose up -d postgres` or use an existing instance.
 3. Install dependencies with `npm install`.
 4. Generate the database client with `npm run db:generate`.
-5. Apply the first local migration with `npm run db:migrate`.
+5. Apply migrations with `npm run db:migrate`.
 
 Run the web application with `npm run dev` and the API in a second terminal with `npm run dev:api`. The API health endpoint is available at `http://127.0.0.1:4000/api/v1/health`.
 
@@ -32,4 +32,8 @@ Run the web application with `npm run dev` and the API in a second terminal with
 - `tests/` — automated tests
 - `public/` — static assets
 
-Milestone 1 establishes the application foundation only. Search connectors, semantic analysis, queues, ranking, outreach, and exports belong to later milestones.
+Company discovery, web crawling, outreach, and exports remain outside Milestone 2.
+
+## Domain intelligence
+
+Milestone 2 adds normalized domain parsing, deterministic quality scoring, semantic expansion through a replaceable provider, industry ranking, business use cases, PostgreSQL caching, and the interactive analysis report. See [docs/api.md](docs/api.md) for the REST API.

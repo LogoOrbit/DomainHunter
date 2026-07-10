@@ -9,6 +9,7 @@
     "noEmit": false,
     "incremental": false,
     "isolatedModules": false,
+    "rewriteRelativeImportExtensions": true,
     "types": ["node"]
   },
   "include": ["src/**/*.ts"]

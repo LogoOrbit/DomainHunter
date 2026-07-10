@@ -37,6 +37,7 @@ model Domain {
   createdAt   DateTime       @default(now()) @map("created_at")
   updatedAt   DateTime       @updatedAt @map("updated_at")
   searches    DomainSearch[]
+  analysis    DomainAnalysis?
 
   @@index([label])
   @@index([tld])
@@ -53,10 +54,104 @@ model DomainSearch {
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
   project     Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  domain      Domain       @relation(fields: [domainId], references: [id], onDelete: Restrict)
+  domain      Domain       @relation(fields: [domainId], references: [id], onDelete: Cascade)
 
   @@index([projectId, createdAt])
   @@index([domainId, status])
   @@index([status, createdAt])
   @@map("domain_searches")
+}
+
+model DomainAnalysis {
+  id                    String            @id @default(cuid())
+  domainId              String            @unique @map("domain_id")
+  characterCount        Int               @map("character_count")
+  wordCount             Int               @map("word_count")
+  hyphenCount           Int               @map("hyphen_count")
+  numberCount           Int               @map("number_count")
+  letterCount           Int               @map("letter_count")
+  pronounceabilityScore Int               @map("pronounceability_score")
+  memorabilityScore     Int               @map("memorability_score")
+  brandabilityScore     Int               @map("brandability_score")
+  lengthScore           Int               @map("length_score")
+  seoFriendliness       Int               @map("seo_friendliness")
+  commercialPotential   Int               @map("commercial_potential")
+  premiumScore          Int               @map("premium_score")
+  globalUsability       Int               @map("global_usability")
+  startupFriendliness   Int               @map("startup_friendliness")
+  strengths             String[]
+  weaknesses            String[]
+  opportunities         String[]
+  risks                 String[]
+  idealBuyerProfile     String            @map("ideal_buyer_profile")
+  globalMarketSummary   String            @map("global_market_summary")
+  analyzedAt            DateTime          @default(now()) @map("analyzed_at")
+  createdAt             DateTime          @default(now()) @map("created_at")
+  updatedAt             DateTime          @updatedAt @map("updated_at")
+  domain                Domain            @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  semanticMeanings      SemanticMeaning[]
+
+  @@index([premiumScore])
+  @@index([commercialPotential])
+  @@index([analyzedAt])
+  @@map("domain_analysis")
+}
+
+model SemanticMeaning {
+  id          String             @id @default(cuid())
+  analysisId  String             @map("analysis_id")
+  phrase      String
+  confidence  Float
+  category    String
+  explanation String
+  rank        Int
+  createdAt   DateTime           @default(now()) @map("created_at")
+  analysis    DomainAnalysis     @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  industries  SemanticIndustry[]
+  useCases    UseCase[]
+
+  @@unique([analysisId, phrase])
+  @@index([analysisId, rank])
+  @@map("semantic_meanings")
+}
+
+model Industry {
+  id        String             @id @default(cuid())
+  slug      String             @unique
+  name      String
+  category  String
+  createdAt DateTime           @default(now()) @map("created_at")
+  meanings  SemanticIndustry[]
+
+  @@index([name])
+  @@map("industries")
+}
+
+model SemanticIndustry {
+  semanticMeaningId String          @map("semantic_meaning_id")
+  industryId        String          @map("industry_id")
+  relevance         Int
+  rank              Int
+  semanticMeaning   SemanticMeaning @relation(fields: [semanticMeaningId], references: [id], onDelete: Cascade)
+  industry          Industry        @relation(fields: [industryId], references: [id], onDelete: Restrict)
+
+  @@id([semanticMeaningId, industryId])
+  @@index([industryId])
+  @@index([semanticMeaningId, rank])
+  @@map("semantic_industries")
+}
+
+model UseCase {
+  id                String          @id @default(cuid())
+  semanticMeaningId String          @map("semantic_meaning_id")
+  title             String
+  description       String
+  relevance         Int
+  rank              Int
+  createdAt         DateTime        @default(now()) @map("created_at")
+  semanticMeaning   SemanticMeaning @relation(fields: [semanticMeaningId], references: [id], onDelete: Cascade)
+
+  @@unique([semanticMeaningId, title])
+  @@index([semanticMeaningId, rank])
+  @@map("use_cases")
 }
