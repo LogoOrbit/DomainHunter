@@ -1,0 +1,1 @@
+import{AppShell}from"../components/app-shell";import{DataWorkspace}from"../components/data-workspace";export default function Page(){return <AppShell eyebrow="Maintenance mode" title="Release information"><DataWorkspace endpoint="/api/system/version"/></AppShell>}

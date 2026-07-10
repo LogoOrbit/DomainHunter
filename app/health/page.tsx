@@ -1,0 +1,1 @@
+import{AppShell}from"../components/app-shell";import{DataWorkspace}from"../components/data-workspace";export default function Page(){return <AppShell eyebrow="System integrity" title="Health dashboard"><DataWorkspace endpoint="/api/system/health"/></AppShell>}

@@ -1,0 +1,1 @@
+import { getPlatformService } from "@/server/src/platform/service";export async function POST(r:Request){const b=await r.json() as {format?:string;scope?:string};return Response.json(await getPlatformService().exportData(b.format??"JSON",b.scope??"COMPANIES"))}

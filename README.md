@@ -45,3 +45,5 @@ Milestone 5 adds a durable priority queue, worker state, connector health and st
 Milestone 6 adds a permanent CRM research workspace with projects, lead workflow, detailed company intelligence, notes, reminders, watchlists, saved searches, comparison, attachments, tags, favorites, and activity history.
 
 Milestone 7 adds incremental opportunity monitoring, configurable rules and alerts, ranked recommendations, cached insight inputs, historical trends, and an automation dashboard built exclusively on public-source signals.
+
+Milestones 8–10 complete configurable integrations and scoring, executive analytics and reports, a database-first research workspace, verified backups, settings, maintenance and health tooling, offline application shell, import/export, diagnostics, Plugin SDK 1.0, and final production release checks. DomainHunter AI is now in maintenance mode.

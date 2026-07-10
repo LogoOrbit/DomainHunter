@@ -39,6 +39,19 @@
 - `GET /api/alerts` and `POST /api/alerts/preferences` — alerts and per-type delivery preferences.
 - `GET /api/trends` — historical buyer, industry, and country snapshots.
 
+## Platform and final release
+
+- `GET /api/integrations`, `POST /api/integrations/configure` — isolated integration configuration with encrypted credentials.
+- `GET /api/scoring/profiles`, `POST /api/scoring/profile`, `PUT /api/scoring/profile/:id` — normalized scoring weights.
+- `GET /api/analytics`, `/api/reports`, `/api/comparisons`; `POST /api/reports/generate` — deterministic analytics and cached reports.
+- `GET /api/workspace`, `POST /api/workspace/query` — database-first research with verified information separated from reasoning.
+- `GET /api/backups`, `POST /api/backups/create`, `/api/backups/restore` — checksummed backups and confirmation-gated restore validation.
+- `GET|PUT /api/settings` — settings and preferences.
+- `GET /api/system/health`, `/api/system/resources`, `/api/system/version`; `POST /api/system/maintenance` — production operations.
+- `GET /api/plugins`, `POST /api/plugins/install`, `PUT|DELETE /api/plugins/:id` — Plugin SDK lifecycle and deny-by-default permissions.
+- `POST /api/import`, `/api/export` — validated JSON/CSV transfer with duplicate detection and history.
+- `GET /api/errors`, `/api/diagnostics` — centralized diagnostics.
+
 All responses use JSON except successful deletion, which returns no body. Validation failures use `{ "error": { "code": string, "message": string } }`.
 
 ## Analyze a domain

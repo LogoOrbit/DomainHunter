@@ -1,0 +1,1 @@
+import { getPlatformService } from "@/server/src/platform/service";export async function POST(r:Request){const b=await r.json() as {question?:string};if(!b.question)return Response.json({error:"question is required"},{status:400});return Response.json(await getPlatformService().queryWorkspace({...b,question:b.question}))}

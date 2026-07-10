@@ -1,0 +1,1 @@
+import { getPlatformService } from "@/server/src/platform/service";export const dynamic="force-dynamic";export async function GET(){return Response.json({backups:await getPlatformService().backups()})}

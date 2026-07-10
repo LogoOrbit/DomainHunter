@@ -1,0 +1,1 @@
+import{AppShell}from"../components/app-shell";export default function Page(){return <AppShell eyebrow="Offline mode" title="Local workspace available"><section className="empty-inline"><h2>You are offline</h2><p>Previously visited pages remain available. Notes and synchronization resume when the connection returns.</p></section></AppShell>}

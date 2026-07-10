@@ -1,0 +1,1 @@
+import { getPlatformService } from "@/server/src/platform/service";export const dynamic="force-dynamic";export async function GET(r:Request){const p=new URL(r.url).searchParams;return Response.json(await getPlatformService().analytics({domainId:p.get("domainId")??undefined,from:p.get("from")?new Date(p.get("from")!):undefined,to:p.get("to")?new Date(p.get("to")!):undefined}))}

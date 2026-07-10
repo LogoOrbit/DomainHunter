@@ -1,0 +1,1 @@
+import{AppShell}from"../components/app-shell";import{DataWorkspace}from"../components/data-workspace";export default function Page(){return <AppShell eyebrow="Portable intelligence" title="Export center"><DataWorkspace endpoint="/api/reports"/></AppShell>}

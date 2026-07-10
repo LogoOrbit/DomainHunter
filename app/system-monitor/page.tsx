@@ -1,0 +1,1 @@
+import{AppShell}from"../components/app-shell";import{DataWorkspace}from"../components/data-workspace";export default function Page(){return <AppShell eyebrow="Production operations" title="System monitor"><DataWorkspace endpoint="/api/system/resources"/></AppShell>}

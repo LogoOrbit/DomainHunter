@@ -1,0 +1,1 @@
+import { getPlatformService } from "@/server/src/platform/service";export async function POST(r:Request){const b=await r.json().catch(()=>({})) as {type?:string};return Response.json({backup:await getPlatformService().createBackup(b.type)},{status:201})}

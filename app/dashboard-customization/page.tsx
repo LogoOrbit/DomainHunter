@@ -1,0 +1,1 @@
+import{AppShell}from"../components/app-shell";import{DataWorkspace}from"../components/data-workspace";export default function Page(){return <AppShell eyebrow="Configurable widgets" title="Dashboard customization"><DataWorkspace endpoint="/api/settings"/></AppShell>}

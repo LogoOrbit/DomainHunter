@@ -1,0 +1,1 @@
+import { getPlatformService } from "@/server/src/platform/service";export async function POST(r:Request){const b=await r.json() as {operation?:string};if(!b.operation)return Response.json({error:"operation is required"},{status:400});return Response.json({result:await getPlatformService().maintenance(b.operation)})}

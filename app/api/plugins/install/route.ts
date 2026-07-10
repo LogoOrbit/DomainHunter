@@ -1,0 +1,1 @@
+import { getPlatformService } from "@/server/src/platform/service";export async function POST(r:Request){const b=await r.json() as {manifest?:unknown;configuration?:unknown};if(!b.manifest)return Response.json({error:"manifest is required"},{status:400});return Response.json({plugin:await getPlatformService().installPlugin(b.manifest,b.configuration)},{status:201})}

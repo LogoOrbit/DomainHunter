@@ -17,6 +17,12 @@ const links = [
   ["Trends", "/trends"],
   ["Watchlists", "/watchlists"],
   ["Reminders", "/reminders"],
+  ["AI workspace", "/ai-workspace"],
+  ["Integrations", "/integrations"],
+  ["Reports", "/reports"],
+  ["Plugins", "/plugins"],
+  ["System health", "/health"],
+  ["Command palette", "/command-palette"],
   ["Projects", "/projects"],
   ["Settings", "/settings"],
 ] as const;

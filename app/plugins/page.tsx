@@ -1,0 +1,1 @@
+import{AppShell}from"../components/app-shell";import{DataWorkspace}from"../components/data-workspace";export default function Page(){return <AppShell eyebrow="Plugin SDK 1.0" title="Plugin manager"><DataWorkspace endpoint="/api/plugins"/></AppShell>}

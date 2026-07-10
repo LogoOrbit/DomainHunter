@@ -1,0 +1,1 @@
+import { getPlatformService } from "@/server/src/platform/service";export async function POST(r:Request){const b=await r.json() as {key?:string;name?:string};if(!b.key||!b.name)return Response.json({error:"key and name are required"},{status:400});return Response.json({integration:await getPlatformService().configureIntegration({...b,key:b.key,name:b.name})})}

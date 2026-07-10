@@ -1,0 +1,1 @@
+import { getPlatformService } from "@/server/src/platform/service";export async function POST(r:Request){const b=await r.json() as {backupId?:string;confirm?:boolean};if(!b.backupId)return Response.json({error:"backupId is required"},{status:400});return Response.json(await getPlatformService().restoreBackup(b.backupId,b.confirm===true))}

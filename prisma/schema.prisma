@@ -1061,3 +1061,371 @@ model NotificationHistory {
   @@index([alertId, attemptedAt])
   @@map("notification_history")
 }
+
+model Integration {
+  id          String    @id @default(cuid())
+  key         String    @unique
+  name        String
+  version     String
+  enabled     Boolean   @default(false)
+  health      String    @default("UNKNOWN")
+  quota       Json?
+  lastSyncAt  DateTime? @map("last_sync_at")
+  executionMs Int?      @map("execution_ms")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("integrations")
+}
+
+model IntegrationSetting {
+  id               String   @id @default(cuid())
+  integrationId    String   @unique @map("integration_id")
+  configuration    Json
+  encryptedSecrets String?  @map("encrypted_secrets")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("integration_settings")
+}
+
+model IntegrationLog {
+  id            String   @id @default(cuid())
+  integrationId String   @map("integration_id")
+  level         String
+  message       String
+  details       Json
+  durationMs    Int?     @map("duration_ms")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([integrationId, createdAt])
+  @@map("integration_logs")
+}
+
+model ScoringProfile {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  projectId   String?  @map("project_id")
+  active      Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([projectId, active])
+  @@map("scoring_profiles")
+}
+
+model ScoringRule {
+  id        String  @id @default(cuid())
+  profileId String  @map("profile_id")
+  factor    String
+  weight    Float
+  enabled   Boolean @default(true)
+
+  @@unique([profileId, factor])
+  @@map("scoring_rules")
+}
+
+model AnalyticsReport {
+  id        String   @id @default(cuid())
+  type      String
+  projectId String?  @map("project_id")
+  domainId  String?  @map("domain_id")
+  inputHash String   @map("input_hash")
+  title     String
+  sections  Json
+  data      Json
+  status    String   @default("COMPLETED")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([type, inputHash])
+  @@index([createdAt])
+  @@map("analytics_reports")
+}
+
+model DashboardLayout {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  widgets   Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("dashboard_layouts")
+}
+
+model ComparisonReport {
+  id         String   @id @default(cuid())
+  name       String
+  entityType String   @map("entity_type")
+  entityIds  String[] @map("entity_ids")
+  metrics    Json
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("comparison_reports")
+}
+
+model ExportHistory {
+  id          String   @id @default(cuid())
+  format      String
+  scope       String
+  filters     Json
+  status      String
+  recordCount Int      @map("record_count")
+  checksum    String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("export_history")
+}
+
+model SavedFilter {
+  id        String   @id @default(cuid())
+  name      String
+  scope     String
+  filters   Json
+  pinned    Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([scope, pinned])
+  @@map("saved_filters")
+}
+
+model Backup {
+  id         String    @id @default(cuid())
+  version    String
+  type       String
+  status     String
+  checksum   String
+  sizeBytes  Int       @map("size_bytes")
+  payload    Json
+  verifiedAt DateTime? @map("verified_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("backups")
+}
+
+model BackupHistory {
+  id        String   @id @default(cuid())
+  backupId  String   @map("backup_id")
+  action    String
+  status    String
+  details   Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([backupId, createdAt])
+  @@map("backup_history")
+}
+
+model MaintenanceLog {
+  id         String   @id @default(cuid())
+  operation  String
+  status     String
+  details    Json
+  durationMs Int      @map("duration_ms")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("maintenance_logs")
+}
+
+model ResourceMetric {
+  id          String   @id @default(cuid())
+  cpuPercent  Float    @map("cpu_percent")
+  memoryBytes BigInt   @map("memory_bytes")
+  heapBytes   BigInt   @map("heap_bytes")
+  queueLength Int      @map("queue_length")
+  activeJobs  Int      @map("active_jobs")
+  metadata    Json
+  capturedAt  DateTime @default(now()) @map("captured_at")
+
+  @@index([capturedAt])
+  @@map("resource_metrics")
+}
+
+model AiWorkspace {
+  id        String   @id @default(cuid())
+  name      String
+  projectId String?  @map("project_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("ai_workspace")
+}
+
+model WorkspaceHistory {
+  id           String   @id @default(cuid())
+  workspaceId  String   @map("workspace_id")
+  role         String
+  content      String
+  verifiedData Json     @map("verified_data")
+  reasoning    Json
+  inputHash    String   @map("input_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([workspaceId, createdAt])
+  @@map("workspace_history")
+}
+
+model WorkspaceSavedItem {
+  id          String   @id @default(cuid())
+  workspaceId String   @map("workspace_id")
+  historyId   String   @map("history_id")
+  title       String
+  pinned      Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([workspaceId, historyId])
+  @@map("workspace_saved_items")
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  sensitive Boolean  @default(false)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+model ApplicationPreference {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("application_preferences")
+}
+
+model HealthReport {
+  id        String   @id @default(cuid())
+  status    String
+  checks    Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("health_reports")
+}
+
+model Plugin {
+  id            String   @id @default(cuid())
+  key           String   @unique
+  name          String
+  version       String
+  description   String
+  author        String
+  enabled       Boolean  @default(false)
+  health        String   @default("DISABLED")
+  manifest      Json
+  configuration Json
+  installedAt   DateTime @default(now()) @map("installed_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("plugins")
+}
+
+model PluginLog {
+  id        String   @id @default(cuid())
+  pluginId  String   @map("plugin_id")
+  level     String
+  message   String
+  details   Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([pluginId, createdAt])
+  @@map("plugin_logs")
+}
+
+model PluginPermission {
+  pluginId   String  @map("plugin_id")
+  permission String
+  granted    Boolean @default(false)
+
+  @@id([pluginId, permission])
+  @@map("plugin_permissions")
+}
+
+model ApplicationVersion {
+  id            String   @id @default(cuid())
+  version       String   @unique
+  commitHash    String?  @map("commit_hash")
+  migrationHash String   @map("migration_hash")
+  installedAt   DateTime @default(now()) @map("installed_at")
+
+  @@map("application_versions")
+}
+
+model ReleaseHistory {
+  id          String   @id @default(cuid())
+  version     String
+  notes       String
+  publishedAt DateTime @map("published_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([publishedAt])
+  @@map("release_history")
+}
+
+model ErrorReport {
+  id         String    @id @default(cuid())
+  source     String
+  code       String?
+  message    String
+  stack      String?
+  context    Json
+  resolvedAt DateTime? @map("resolved_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@index([resolvedAt, createdAt])
+  @@map("error_reports")
+}
+
+model Diagnostic {
+  id        String   @id @default(cuid())
+  category  String
+  status    String
+  details   Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("diagnostics")
+}
+
+model Import {
+  id             String   @id @default(cuid())
+  format         String
+  status         String
+  mapping        Json
+  recordCount    Int      @map("record_count")
+  duplicateCount Int      @map("duplicate_count")
+  checksum       String
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("imports")
+}
+
+model ImportHistory {
+  id        String   @id @default(cuid())
+  importId  String   @map("import_id")
+  event     String
+  details   Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([importId, createdAt])
+  @@map("import_history")
+}
+
+model UpdateHistory {
+  id          String   @id @default(cuid())
+  fromVersion String   @map("from_version")
+  toVersion   String   @map("to_version")
+  status      String
+  backupId    String?  @map("backup_id")
+  details     Json
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("update_history")
+}

@@ -1,6 +1,6 @@
 {
   "name": "domainhunter-ai",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
@@ -11,6 +11,10 @@
     "dev:api": "tsx watch server/src/index.ts",
     "build": "npm run db:generate && npm run build:web && npm run build:api",
     "build:vercel": "npm run db:generate && next build",
+    "build:release": "npm run typecheck && npm run lint && npm test && npm run build",
+    "build:windows": "npm run build:release",
+    "build:macos": "npm run build:release",
+    "build:linux": "npm run build:release",
     "build:web": "vinext build",
     "build:api": "tsc -p server/tsconfig.json",
     "start": "vinext start",
