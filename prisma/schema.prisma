@@ -16,6 +16,33 @@ enum SearchStatus {
   CANCELLED
 }
 
+enum ScanStatus {
+  QUEUED
+  RUNNING
+  PAUSED
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ContactType {
+  BUSINESS_EMAIL
+  SALES_EMAIL
+  SUPPORT_EMAIL
+  PHONE
+  FOUNDER
+  CEO
+  DECISION_MAKER
+}
+
+enum ConnectorLogStatus {
+  STARTED
+  SUCCEEDED
+  RETRYING
+  FAILED
+  SKIPPED
+}
+
 model Project {
   id          String         @id @default(cuid())
   name        String
@@ -29,15 +56,17 @@ model Project {
 }
 
 model Domain {
-  id          String         @id @default(cuid())
-  asciiName   String         @unique @map("ascii_name")
-  displayName String         @map("display_name")
-  label       String
-  tld         String
-  createdAt   DateTime       @default(now()) @map("created_at")
-  updatedAt   DateTime       @updatedAt @map("updated_at")
-  searches    DomainSearch[]
-  analysis    DomainAnalysis?
+  id            String          @id @default(cuid())
+  asciiName     String          @unique @map("ascii_name")
+  displayName   String          @map("display_name")
+  label         String
+  tld           String
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  searches      DomainSearch[]
+  analysis      DomainAnalysis?
+  scanJobs      ScanJob[]
+  companyScores CompanyScore[]
 
   @@index([label])
   @@index([tld])
@@ -122,6 +151,7 @@ model Industry {
   category  String
   createdAt DateTime           @default(now()) @map("created_at")
   meanings  SemanticIndustry[]
+  companies CompanyIndustry[]
 
   @@index([name])
   @@map("industries")
@@ -154,4 +184,221 @@ model UseCase {
   @@unique([semanticMeaningId, title])
   @@index([semanticMeaningId, rank])
   @@map("use_cases")
+}
+
+model Company {
+  id               String            @id @default(cuid())
+  dedupeKey        String            @unique @map("dedupe_key")
+  normalizedName   String            @map("normalized_name")
+  name             String
+  website          String?
+  officialDomain   String?           @map("official_domain")
+  description      String?
+  country          String?
+  state            String?
+  city             String?
+  headquarters     String?
+  linkedinUrl      String?           @map("linkedin_url")
+  contactPage      String?           @map("contact_page")
+  companySize      String?           @map("company_size")
+  fundingStage     String?           @map("funding_stage")
+  latestFunding    String?           @map("latest_funding")
+  bookmarked       Boolean           @default(false)
+  notes            String?
+  firstCollectedAt DateTime          @default(now()) @map("first_collected_at")
+  lastCollectedAt  DateTime          @default(now()) @map("last_collected_at")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  contacts         CompanyContact[]
+  sources          CompanySource[]
+  scores           CompanyScore[]
+  industries       CompanyIndustry[]
+  keywords         CompanyKeyword[]
+  history          CompanyHistory[]
+  scanResults      ScanResult[]
+
+  @@index([normalizedName])
+  @@index([officialDomain])
+  @@index([country])
+  @@index([companySize])
+  @@index([fundingStage])
+  @@map("companies")
+}
+
+model CompanyContact {
+  id          String      @id @default(cuid())
+  companyId   String      @map("company_id")
+  type        ContactType
+  name        String?
+  title       String?
+  value       String?
+  sourceUrl   String      @map("source_url")
+  collectedAt DateTime    @default(now()) @map("collected_at")
+  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, type, value, sourceUrl])
+  @@index([companyId, type])
+  @@map("company_contacts")
+}
+
+model CompanySource {
+  id           String   @id @default(cuid())
+  companyId    String   @map("company_id")
+  connectorId  String   @map("connector_id")
+  sourceUrl    String   @map("source_url")
+  fieldOrigins Json     @map("field_origins")
+  collectedAt  DateTime @default(now()) @map("collected_at")
+  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, sourceUrl])
+  @@index([connectorId, collectedAt])
+  @@map("company_sources")
+}
+
+model CompanyScore {
+  id                String   @id @default(cuid())
+  companyId         String   @map("company_id")
+  domainId          String   @map("domain_id")
+  buyerScore        Int      @map("buyer_score")
+  confidenceScore   Int      @map("confidence_score")
+  semanticRelevance Int      @map("semantic_relevance")
+  industryMatch     Int      @map("industry_match")
+  brandSimilarity   Int      @map("brand_similarity")
+  keywordSimilarity Int      @map("keyword_similarity")
+  domainSimilarity  Int      @map("domain_similarity")
+  companyStrength   Int      @map("company_strength")
+  technologyMatch   Int      @map("technology_match")
+  businessModelFit  Int      @map("business_model_fit")
+  matchReason       String   @map("match_reason")
+  scoredAt          DateTime @default(now()) @map("scored_at")
+  company           Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  domain            Domain   @relation(fields: [domainId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, domainId])
+  @@index([domainId, buyerScore])
+  @@index([domainId, confidenceScore])
+  @@map("company_scores")
+}
+
+model CompanyIndustry {
+  companyId  String   @map("company_id")
+  industryId String   @map("industry_id")
+  relevance  Int
+  sourceUrl  String   @map("source_url")
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  industry   Industry @relation(fields: [industryId], references: [id], onDelete: Restrict)
+
+  @@id([companyId, industryId])
+  @@index([industryId])
+  @@map("company_industries")
+}
+
+model CompanyKeyword {
+  id        String  @id @default(cuid())
+  companyId String  @map("company_id")
+  keyword   String
+  relevance Int
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, keyword])
+  @@index([keyword])
+  @@map("company_keywords")
+}
+
+model CompanyHistory {
+  id        String   @id @default(cuid())
+  companyId String   @map("company_id")
+  eventType String   @map("event_type")
+  details   Json
+  createdAt DateTime @default(now()) @map("created_at")
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, createdAt])
+  @@map("company_history")
+}
+
+model ScanJob {
+  id                   String         @id @default(cuid())
+  domainId             String         @map("domain_id")
+  status               ScanStatus     @default(QUEUED)
+  progress             Int            @default(0)
+  totalQueries         Int            @default(0) @map("total_queries")
+  processedQueries     Int            @default(0) @map("processed_queries")
+  companiesFound       Int            @default(0) @map("companies_found")
+  duplicateMerges      Int            @default(0) @map("duplicate_merges")
+  estimatedSecondsLeft Int?           @map("estimated_seconds_left")
+  queryPlan            Json           @map("query_plan")
+  processedQueryKeys   String[]       @map("processed_query_keys")
+  connectorStatus      Json           @map("connector_status")
+  errors               Json
+  requestedAt          DateTime       @default(now()) @map("requested_at")
+  startedAt            DateTime?      @map("started_at")
+  completedAt          DateTime?      @map("completed_at")
+  updatedAt            DateTime       @updatedAt @map("updated_at")
+  domain               Domain         @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  results              ScanResult[]
+  logs                 ConnectorLog[]
+
+  @@index([domainId, requestedAt])
+  @@index([status, requestedAt])
+  @@map("scan_jobs")
+}
+
+model ScanResult {
+  id          String   @id @default(cuid())
+  scanJobId   String   @map("scan_job_id")
+  companyId   String   @map("company_id")
+  connectorId String   @map("connector_id")
+  query       String
+  createdAt   DateTime @default(now()) @map("created_at")
+  scanJob     ScanJob  @relation(fields: [scanJobId], references: [id], onDelete: Cascade)
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([scanJobId, companyId, connectorId, query])
+  @@index([scanJobId, createdAt])
+  @@map("scan_results")
+}
+
+model ConnectorLog {
+  id               String             @id @default(cuid())
+  scanJobId        String             @map("scan_job_id")
+  connectorId      String             @map("connector_id")
+  query            String?
+  status           ConnectorLogStatus
+  attempt          Int                @default(1)
+  durationMs       Int?               @map("duration_ms")
+  recordsCollected Int?               @map("records_collected")
+  errorMessage     String?            @map("error_message")
+  apiUsage         Json?              @map("api_usage")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  scanJob          ScanJob            @relation(fields: [scanJobId], references: [id], onDelete: Cascade)
+
+  @@index([scanJobId, connectorId, createdAt])
+  @@map("connector_logs")
+}
+
+model ConnectorCache {
+  id          String   @id @default(cuid())
+  connectorId String   @map("connector_id")
+  queryKey    String   @map("query_key")
+  records     Json
+  expiresAt   DateTime @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([connectorId, queryKey])
+  @@index([expiresAt])
+  @@map("connector_cache")
+}
+
+model SavedLeadFilter {
+  id        String   @id @default(cuid())
+  domainId  String?  @map("domain_id")
+  name      String
+  filters   Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([domainId, createdAt])
+  @@map("saved_lead_filters")
 }

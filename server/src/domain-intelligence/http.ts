@@ -1,4 +1,5 @@
 import { DomainNotFoundError, DomainValidationError } from "./errors.ts";
+import { LeadDiscoveryError } from "../lead-discovery/errors.ts";
 
 export type ErrorPayload = { error: { code: string; message: string } };
 
@@ -6,6 +7,7 @@ export function toErrorResponse(error: unknown): { statusCode: number; payload: 
   if (error instanceof DomainValidationError || error instanceof DomainNotFoundError) {
     return { statusCode: error.statusCode, payload: { error: { code: error.code, message: error.message } } };
   }
+  if (error instanceof LeadDiscoveryError) return { statusCode: error.statusCode, payload: { error: { code: error.code, message: error.message } } };
   if (isFastifyValidationError(error)) {
     return { statusCode: 400, payload: { error: { code: "VALIDATION_ERROR", message: error.message } } };
   }

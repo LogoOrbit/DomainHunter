@@ -4,8 +4,11 @@ import { getDomainIntelligenceService } from "./domain-intelligence/factory.ts";
 import { toErrorResponse } from "./domain-intelligence/http.ts";
 import type { DomainIntelligenceService } from "./domain-intelligence/service.ts";
 import { createDomainRoutes } from "./routes/domains.ts";
+import { getLeadDiscoveryService } from "./lead-discovery/factory.ts";
+import type { LeadDiscoveryService } from "./lead-discovery/service.ts";
+import { createCompanyRoutes, createDiscoveryRoutes } from "./routes/discovery.ts";
 
-export type BuildAppOptions = { logger?: boolean | { level: string }; domainService?: DomainIntelligenceService };
+export type BuildAppOptions = { logger?: boolean | { level: string }; domainService?: DomainIntelligenceService; leadService?: LeadDiscoveryService | false };
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   const app = Fastify({
@@ -15,6 +18,11 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
 
   app.register(registerHealthRoutes, { prefix: "/api/v1" });
   app.register(createDomainRoutes(options.domainService ?? getDomainIntelligenceService()), { prefix: "/api/domain" });
+  if (options.leadService !== false) {
+    const leadService = options.leadService ?? getLeadDiscoveryService();
+    app.register(createDiscoveryRoutes(leadService), { prefix: "/api/discovery" });
+    app.register(createCompanyRoutes(leadService), { prefix: "/api/companies" });
+  }
 
   app.setErrorHandler((error, request, reply) => {
     const response = toErrorResponse(error);

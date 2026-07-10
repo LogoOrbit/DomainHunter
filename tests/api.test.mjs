@@ -7,7 +7,7 @@ import { DomainIntelligenceService } from "../server/dist/domain-intelligence/se
 import { MemoryDomainRepository } from "./helpers/memory-repository.mjs";
 
 function createApp() {
-  return buildApp({ domainService: new DomainIntelligenceService(new MemoryDomainRepository(), new DomainIntelligenceEngine(new LexiconSemanticProvider())) });
+  return buildApp({ domainService: new DomainIntelligenceService(new MemoryDomainRepository(), new DomainIntelligenceEngine(new LexiconSemanticProvider())), leadService: false });
 }
 
 test("health endpoint reports a healthy API", async () => {

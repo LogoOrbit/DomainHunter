@@ -61,6 +61,7 @@ export function AnalysisClient() {
         </div>
         <div className="analysis-actions">
           {cached && <span className="cache-badge">Cached analysis</span>}
+          <Link className="discovery-link" href={`/lead-discovery?domainId=${analysis.id}`}>Discover public leads →</Link>
           <button disabled={loading} onClick={() => void analyze(true)}>{loading ? "Refreshing…" : "Refresh analysis"}</button>
         </div>
       </section>

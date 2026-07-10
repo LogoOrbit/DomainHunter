@@ -36,3 +36,15 @@ Deletes the domain and its analysis, semantic meanings, industry relationships, 
 ## Report shape
 
 Each analysis includes normalized domain parts, deterministic quality metrics, scores from 0–100, ranked semantic meanings, ranked industries, realistic use cases, strengths, weaknesses, opportunities, risks, ideal buyer profile, and global-market suitability.
+
+## Public lead discovery
+
+- `POST /api/discovery/scans` with `{ "domainId": "..." }` queues a scan.
+- `GET /api/discovery/scans/:id` returns live progress and connector health.
+- `POST /api/discovery/scans/:id/pause`, `/resume`, or `/cancel` controls a scan.
+- `GET /api/discovery/scans/:id/results` returns cursor-paginated companies. Supported filters include `search`, `country`, `industry`, `minBuyerScore`, `minConfidence`, `companySize`, `fundingStage`, and `keyword`.
+- `GET /api/companies/:id` returns the public-evidence company profile.
+- `PATCH /api/companies/:id` updates `bookmarked` and private `notes` fields.
+- `GET` and `POST /api/discovery/filters` list and save result filter presets.
+
+The first connectors use GitHub Organizations and Wikidata. They collect only public API responses, enforce endpoint allowlists, use configurable request pacing and retries, and preserve source URLs for every record.

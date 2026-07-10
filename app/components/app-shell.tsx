@@ -4,6 +4,7 @@ const links = [
   ["Dashboard", "/dashboard"],
   ["Results", "/results"],
   ["Domain analysis", "/domain-analysis"],
+  ["Lead discovery", "/lead-discovery"],
   ["Projects", "/projects"],
   ["Settings", "/settings"],
 ] as const;
@@ -16,7 +17,7 @@ export function AppShell({ title, eyebrow, children }: { title: string; eyebrow:
         <nav aria-label="Workspace navigation">
           {links.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
         </nav>
-        <div className="sidebar-note"><span>Milestone 1</span><p>Your workspace foundation is ready.</p></div>
+        <div className="sidebar-note"><span>Milestone 3</span><p>Public-source discovery is ready.</p></div>
       </aside>
       <section className="workspace-content">
         <header><div><span className="workspace-eyebrow">{eyebrow}</span><h1>{title}</h1></div><Link href="/">New search</Link></header>
