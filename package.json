@@ -10,7 +10,7 @@
     "dev:web": "vinext dev",
     "dev:api": "tsx watch server/src/index.ts",
     "build": "npm run db:generate && npm run build:web && npm run build:api",
-    "build:vercel": "npm run db:generate && next build",
+    "build:vercel": "npm run db:generate && npm run db:migrate:deploy && next build",
     "build:release": "npm run typecheck && npm run lint && npm test && npm run build",
     "build:windows": "npm run build:release",
     "build:macos": "npm run build:release",
