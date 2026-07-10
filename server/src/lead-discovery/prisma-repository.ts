@@ -48,6 +48,16 @@ export class PrismaLeadDiscoveryRepository implements LeadDiscoveryRepository {
           { normalizedName },
         ] } });
         if (existing) merged++;
+        if (existing) {
+          const tracked = { name: record.name, website: record.website, description: record.description, headquarters: record.headquarters, companySize: record.companySize, fundingStage: record.fundingStage, latestFunding: record.latestFunding };
+          for (const [field, currentValue] of Object.entries(tracked)) {
+            const previousValue = existing[field as keyof typeof tracked];
+            if (currentValue != null && previousValue != null && String(currentValue) !== String(previousValue)) {
+              await transaction.companyChange.create({ data: { companyId: existing.id, scanJobId, field, previousValue: String(previousValue), currentValue: String(currentValue), significance: ["fundingStage", "latestFunding", "name"].includes(field) ? 85 : 55 } });
+              await transaction.notification.create({ data: { type: field === "fundingStage" || field === "latestFunding" ? "FUNDING_EVENT" : field === "name" ? "REBRAND" : "COMPANY_CHANGE", domainId: context.domainId, companyId: existing.id, title: `${record.name} changed`, message: `${field} was updated from a public source.`, data: { field, previousValue: String(previousValue), currentValue: String(currentValue), scanJobId } } });
+            }
+          }
+        }
         const company = existing
           ? await transaction.company.update({ where: { id: existing.id }, data: companyUpdate(record) })
           : await transaction.company.create({ data: companyCreate(record, key) });
@@ -64,6 +74,8 @@ export class PrismaLeadDiscoveryRepository implements LeadDiscoveryRepository {
         if (score) {
           const current = await transaction.companyScore.findUnique({ where: { companyId_domainId: { companyId: company.id, domainId: context.domainId } } });
           if (!current || score.buyerScore > current.buyerScore) await transaction.companyScore.upsert({ where: { companyId_domainId: { companyId: company.id, domainId: context.domainId } }, create: { companyId: company.id, domainId: context.domainId, ...score }, update: score });
+          if (score.buyerScore >= 80 && (!current || current.buyerScore < 80)) await transaction.notification.create({ data: { type: "HIGH_PRIORITY_BUYER", domainId: context.domainId, companyId: company.id, title: "High-priority buyer found", message: `${company.name} scored ${score.buyerScore}/100.`, data: { buyerScore: score.buyerScore, scanJobId } } });
+          else if (current && score.buyerScore >= current.buyerScore + 10) await transaction.notification.create({ data: { type: "SCORE_INCREASE", domainId: context.domainId, companyId: company.id, title: "Buyer score increased", message: `${company.name} increased to ${score.buyerScore}/100.`, data: { previousScore: current.buyerScore, buyerScore: score.buyerScore, scanJobId } } });
         }
         await transaction.scanResult.upsert({ where: { scanJobId_companyId_connectorId_query: { scanJobId, companyId: company.id, connectorId, query: context.query } }, create: { scanJobId, companyId: company.id, connectorId, query: context.query }, update: {} });
         await transaction.companyHistory.create({ data: { companyId: company.id, eventType: existing ? "SOURCE_MERGED" : "DISCOVERED", details: { connectorId, sourceUrl: record.sourceUrl, scanJobId } } });

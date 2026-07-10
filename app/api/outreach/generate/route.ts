@@ -1,0 +1,3 @@
+import { getIntelligenceService } from "@/server/src/intelligence/service";
+export const dynamic = "force-dynamic";
+export async function POST(request: Request) { try { const body = await request.json() as { domainId?: string; companyId?: string; templateKey?: string; contact?: string; sender?: string }; if (!body.domainId || !body.templateKey) return Response.json({ error: "domainId and templateKey are required" }, { status: 400 }); return Response.json({ message: await getIntelligenceService().generateOutreach({ ...body, domainId: body.domainId, templateKey: body.templateKey }) }, { status: 201 }); } catch (error) { return Response.json({ error: error instanceof Error ? error.message : "Generation failed" }, { status: 500 }); } }

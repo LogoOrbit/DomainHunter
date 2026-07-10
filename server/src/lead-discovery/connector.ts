@@ -6,9 +6,12 @@ export interface PublicLeadConnector {
   readonly id: string;
   readonly name: string;
   initialize(): Promise<void>;
+  authenticate(): Promise<void>;
+  healthCheck(): Promise<{ health: ConnectorHealth; latencyMs: number }>;
   search(context: SearchContext): Promise<ConnectorSearchResult>;
   normalize(raw: unknown, context: SearchContext): PublicCompanyRecord | null;
   validate(record: PublicCompanyRecord): boolean;
+  deduplicate(records: PublicCompanyRecord[]): PublicCompanyRecord[];
   save(records: PublicCompanyRecord[], context: SearchContext, sink: ConnectorSaveContext): Promise<PersistResult>;
   shutdown(): Promise<void>;
   health(): ConnectorHealth;
@@ -20,11 +23,14 @@ export abstract class BasePublicConnector implements PublicLeadConnector {
   private state: ConnectorHealth = "idle";
 
   async initialize(): Promise<void> { this.state = "healthy"; }
+  async authenticate(): Promise<void> { /* Public connectors do not require credentials. */ }
+  async healthCheck(): Promise<{ health: ConnectorHealth; latencyMs: number }> { const started = Date.now(); await this.initialize(); return { health: this.health(), latencyMs: Date.now() - started }; }
   abstract search(context: SearchContext): Promise<ConnectorSearchResult>;
   abstract normalize(raw: unknown, context: SearchContext): PublicCompanyRecord | null;
   validate(record: PublicCompanyRecord): boolean {
     return record.name.trim().length >= 2 && isPublicHttpUrl(record.sourceUrl) && (!record.website || isPublicHttpUrl(record.website));
   }
+  deduplicate(records: PublicCompanyRecord[]): PublicCompanyRecord[] { return [...new Map(records.map((record) => [`${record.name.toLowerCase()}|${record.website ?? record.sourceUrl}`, record])).values()]; }
   save(records: PublicCompanyRecord[], context: SearchContext, sink: ConnectorSaveContext): Promise<PersistResult> {
     return sink.persist(records, this.id, context);
   }

@@ -43,6 +43,26 @@ enum ConnectorLogStatus {
   SKIPPED
 }
 
+enum QueueStatus {
+  QUEUED
+  CLAIMED
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum NotificationType {
+  HIGH_PRIORITY_BUYER
+  SCORE_INCREASE
+  NEW_EXECUTIVE
+  FUNDING_EVENT
+  REBRAND
+  COMPANY_CHANGE
+  SCAN_COMPLETED
+  SCAN_FAILED
+}
+
 model Project {
   id          String         @id @default(cuid())
   name        String
@@ -401,4 +421,280 @@ model SavedLeadFilter {
 
   @@index([domainId, createdAt])
   @@map("saved_lead_filters")
+}
+
+model Valuation {
+  id                 String   @id @default(cuid())
+  domainId           String   @unique @map("domain_id")
+  inputHash          String   @map("input_hash")
+  lowEstimate        Int      @map("low_estimate")
+  fairEstimate       Int      @map("fair_estimate")
+  premiumEstimate    Int      @map("premium_estimate")
+  investorEstimate   Int      @map("investor_estimate")
+  endUserEstimate    Int      @map("end_user_estimate")
+  confidence         Int
+  components         Json
+  comparables        Json
+  verifiedPublicData Json     @map("verified_public_data")
+  aiEstimate         Json     @map("ai_estimate")
+  explanation        Json
+  opportunityReport  Json     @map("opportunity_report")
+  generatedAt        DateTime @default(now()) @map("generated_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@index([inputHash])
+  @@map("valuations")
+}
+
+model PricingHistory {
+  id              String   @id @default(cuid())
+  domainId        String   @map("domain_id")
+  valuationId     String   @map("valuation_id")
+  lowEstimate     Int      @map("low_estimate")
+  fairEstimate    Int      @map("fair_estimate")
+  premiumEstimate Int      @map("premium_estimate")
+  recordedAt      DateTime @default(now()) @map("recorded_at")
+
+  @@index([domainId, recordedAt])
+  @@map("pricing_history")
+}
+
+model BuyerRanking {
+  id                     String   @id @default(cuid())
+  domainId               String   @map("domain_id")
+  companyId              String   @map("company_id")
+  inputHash              String   @map("input_hash")
+  rank                   Int
+  segment                String
+  buyerFit               Int      @map("buyer_fit")
+  strategicRelevance     Int      @map("strategic_relevance")
+  businessModelFit       Int      @map("business_model_fit")
+  semanticAlignment      Int      @map("semantic_alignment")
+  commercialPotential    Int      @map("commercial_potential")
+  acquisitionProbability Int      @map("acquisition_probability")
+  outreachPriority       Int      @map("outreach_priority")
+  explanation            Json
+  rankedAt               DateTime @default(now()) @map("ranked_at")
+
+  @@unique([domainId, companyId])
+  @@index([domainId, rank])
+  @@map("buyer_rankings")
+}
+
+model BuyerExplanation {
+  id             String   @id @default(cuid())
+  rankingId      String   @unique @map("ranking_id")
+  reasons        String[]
+  risks          String[]
+  suggestedAngle String   @map("suggested_angle")
+  scoreDetails   Json     @map("score_details")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("buyer_explanations")
+}
+
+model OutreachTemplate {
+  id           String   @id @default(cuid())
+  key          String   @unique
+  name         String
+  channel      String
+  subject      String?
+  body         String
+  placeholders Json
+  isSystem     Boolean  @default(true) @map("is_system")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("outreach_templates")
+}
+
+model GeneratedMessage {
+  id             String   @id @default(cuid())
+  domainId       String   @map("domain_id")
+  companyId      String?  @map("company_id")
+  templateId     String   @map("template_id")
+  inputHash      String   @map("input_hash")
+  subject        String?
+  body           String
+  customizations Json
+  status         String   @default("DRAFT")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([domainId, createdAt])
+  @@map("generated_messages")
+}
+
+model NegotiationPlan {
+  id               String   @id @default(cuid())
+  domainId         String   @unique @map("domain_id")
+  valuationId      String   @map("valuation_id")
+  inputHash        String   @map("input_hash")
+  openingPrice     Int      @map("opening_price")
+  targetPrice      Int      @map("target_price")
+  floorPrice       Int      @map("floor_price")
+  strategy         Json
+  objectionScripts Json     @map("objection_scripts")
+  generatedAt      DateTime @default(now()) @map("generated_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("negotiation_plans")
+}
+
+model AnalyticsSnapshot {
+  id        String   @id @default(cuid())
+  domainId  String   @map("domain_id")
+  inputHash String   @map("input_hash")
+  metrics   Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([domainId, inputHash])
+  @@index([domainId, createdAt])
+  @@map("analytics_snapshots")
+}
+
+model Connector {
+  id               String    @id
+  name             String
+  enabled          Boolean   @default(true)
+  paused           Boolean   @default(false)
+  configuration    Json
+  totalRequests    Int       @default(0) @map("total_requests")
+  successfulRuns   Int       @default(0) @map("successful_runs")
+  failedRuns       Int       @default(0) @map("failed_runs")
+  recordsCollected Int       @default(0) @map("records_collected")
+  averageLatencyMs Int       @default(0) @map("average_latency_ms")
+  lastRunAt        DateTime? @map("last_run_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  @@map("connectors")
+}
+
+model ConnectorHealth {
+  id          String   @id @default(cuid())
+  connectorId String   @map("connector_id")
+  healthy     Boolean
+  latencyMs   Int      @map("latency_ms")
+  message     String?
+  checkedAt   DateTime @default(now()) @map("checked_at")
+
+  @@index([connectorId, checkedAt])
+  @@map("connector_health")
+}
+
+model ScanTask {
+  id          String      @id @default(cuid())
+  scanJobId   String      @map("scan_job_id")
+  connectorId String      @map("connector_id")
+  query       String
+  status      QueueStatus @default(QUEUED)
+  attempts    Int         @default(0)
+  availableAt DateTime    @default(now()) @map("available_at")
+  startedAt   DateTime?   @map("started_at")
+  completedAt DateTime?   @map("completed_at")
+  error       String?
+
+  @@unique([scanJobId, connectorId, query])
+  @@index([status, availableAt])
+  @@map("scan_tasks")
+}
+
+model ScanHistory {
+  id        String   @id @default(cuid())
+  scanJobId String   @map("scan_job_id")
+  event     String
+  details   Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([scanJobId, createdAt])
+  @@map("scan_history")
+}
+
+model ScanProgress {
+  id               String   @id @default(cuid())
+  scanJobId        String   @map("scan_job_id")
+  progress         Int
+  companiesFound   Int      @map("companies_found")
+  companiesUpdated Int      @map("companies_updated")
+  recordedAt       DateTime @default(now()) @map("recorded_at")
+
+  @@index([scanJobId, recordedAt])
+  @@map("scan_progress")
+}
+
+model CompanyChange {
+  id            String   @id @default(cuid())
+  companyId     String   @map("company_id")
+  scanJobId     String?  @map("scan_job_id")
+  field         String
+  previousValue String?  @map("previous_value")
+  currentValue  String?  @map("current_value")
+  significance  Int      @default(50)
+  detectedAt    DateTime @default(now()) @map("detected_at")
+
+  @@index([companyId, detectedAt])
+  @@map("company_changes")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  domainId  String?          @map("domain_id")
+  companyId String?          @map("company_id")
+  title     String
+  message   String
+  data      Json
+  readAt    DateTime?        @map("read_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  @@index([readAt, createdAt])
+  @@map("notifications")
+}
+
+model JobQueue {
+  id          String      @id @default(cuid())
+  scanJobId   String      @unique @map("scan_job_id")
+  status      QueueStatus @default(QUEUED)
+  priority    Int         @default(50)
+  attempts    Int         @default(0)
+  maxAttempts Int         @default(4) @map("max_attempts")
+  availableAt DateTime    @default(now()) @map("available_at")
+  claimedBy   String?     @map("claimed_by")
+  claimedAt   DateTime?   @map("claimed_at")
+  lastError   String?     @map("last_error")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@index([status, priority, availableAt])
+  @@map("job_queue")
+}
+
+model WorkerStatus {
+  id            String   @id
+  status        String
+  currentJobId  String?  @map("current_job_id")
+  jobsCompleted Int      @default(0) @map("jobs_completed")
+  jobsFailed    Int      @default(0) @map("jobs_failed")
+  lastHeartbeat DateTime @map("last_heartbeat")
+  startedAt     DateTime @default(now()) @map("started_at")
+  metadata      Json
+
+  @@index([lastHeartbeat])
+  @@map("worker_status")
+}
+
+model ScanSchedule {
+  id        String    @id @default(cuid())
+  domainId  String    @map("domain_id")
+  frequency String
+  cron      String?
+  priority  Int       @default(50)
+  enabled   Boolean   @default(true)
+  nextRunAt DateTime  @map("next_run_at")
+  lastRunAt DateTime? @map("last_run_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@index([enabled, nextRunAt])
+  @@map("scan_schedules")
 }

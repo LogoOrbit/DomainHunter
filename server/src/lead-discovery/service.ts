@@ -104,7 +104,7 @@ export class LeadDiscoveryService {
         const queryKey = `${context.semanticPhrase.toLowerCase()}:${context.query.toLowerCase()}`;
         const cached = await this.repository.getCached(connector.id, queryKey);
         const raw = cached ? { records: cached, apiUsage: { cache: "hit", requests: 0 } } : await connector.search(context);
-        const records = cached ?? raw.records.map((item) => connector.normalize(item, context)).filter((item): item is NonNullable<typeof item> => item !== null && connector.validate(item));
+        const records = cached ?? connector.deduplicate(raw.records.map((item) => connector.normalize(item, context)).filter((item): item is NonNullable<typeof item> => item !== null && connector.validate(item)));
         if (!cached) await this.repository.setCached(connector.id, queryKey, records, new Date(Date.now() + positiveInt(process.env.CONNECTOR_CACHE_TTL_SECONDS, 86_400) * 1_000));
         const scores = records.map((company) => scoreBuyer({ company, domain: context.domain, rootKeyword: context.rootKeyword, semanticPhrase: context.semanticPhrase, semanticConfidence: context.semanticConfidence, targetIndustries: context.targetIndustries }));
         const result = await connector.save(records, context, { persist: (items, connectorId, searchContext) => this.repository.persist(items, connectorId, searchContext, scanJobId, scores) });

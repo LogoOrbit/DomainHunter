@@ -32,10 +32,12 @@ Run the web application with `npm run dev` and the API in a second terminal with
 - `tests/` — automated tests
 - `public/` — static assets
 
-Outreach, domain appraisal, and advanced analytics remain outside Milestone 3.
-
 ## Domain intelligence
 
 Milestone 2 adds normalized domain parsing, deterministic quality scoring, semantic expansion through a replaceable provider, industry ranking, business use cases, PostgreSQL caching, and the interactive analysis report. See [docs/api.md](docs/api.md) for the REST API.
 
 Milestone 3 adds durable public lead scans, independent GitHub and Wikidata connectors, retries and connector health, deduplication, buyer scoring, source provenance, searchable results, saved filters, bookmarks, notes, and company profiles.
+
+Milestone 4 adds cached domain valuation, explainable buyer rankings, draft-only outreach generation, negotiation plans, pricing history, and analytics snapshots. Verified public evidence is kept separate from model estimates.
+
+Milestone 5 adds a durable priority queue, worker state, connector health and statistics, scan progress/history, schedules, company change records, and notifications for continuous public-data discovery.

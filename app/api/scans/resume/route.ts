@@ -1,0 +1,2 @@
+import { after } from "next/server"; import { getContinuousDiscoveryService } from "@/server/src/continuous-discovery/service";
+export async function POST(request: Request) { const { scanId } = await request.json() as { scanId?: string }; if (!scanId) return Response.json({ error: "scanId is required" }, { status: 400 }); const service = getContinuousDiscoveryService(); const scan = await service.resume(scanId); after(() => service.process(scanId)); return Response.json({ scan }); }

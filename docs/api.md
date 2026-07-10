@@ -1,5 +1,24 @@
 # Domain Intelligence API
 
+## Valuation and buyer intelligence
+
+- `POST /api/valuation/run` — generate or retrieve a cached valuation; accepts `domainId` and optional `refresh`.
+- `GET /api/valuation/:domainId` — retrieve the latest valuation.
+- `GET /api/buyers/rankings?domainId=...` — generate and retrieve explainable buyer rankings.
+- `GET /api/outreach/templates` — list editable draft templates.
+- `POST /api/outreach/generate` — create a draft message. Messages are never sent automatically.
+- `POST /api/negotiation/generate` — create a valuation-backed negotiation plan.
+- `GET /api/analytics/domain/:domainId` — retrieve current and historical analytics snapshots.
+
+## Continuous discovery
+
+- `POST /api/scans/start` — enqueue a durable scan with optional priority.
+- `POST /api/scans/pause`, `/resume`, `/cancel` — control a scan by `scanId`.
+- `GET /api/scans/status?id=...` — retrieve one scan; omit `id` for queue, worker, and recent scan state.
+- `GET /api/connectors` and `GET /api/connectors/health` — connector registry and health checks.
+- `GET /api/notifications` — recent discovery notifications.
+- `GET /api/company/changes/:companyId` — detected public company changes.
+
 All responses use JSON except successful deletion, which returns no body. Validation failures use `{ "error": { "code": string, "message": string } }`.
 
 ## Analyze a domain
