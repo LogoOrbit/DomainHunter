@@ -52,6 +52,17 @@
 - `POST /api/import`, `/api/export` — validated JSON/CSV transfer with duplicate detection and history.
 - `GET /api/errors`, `/api/diagnostics` — centralized diagnostics.
 
+## Knowledge and decision intelligence
+
+- `GET|POST /api/knowledge/graph` — rebuild or query the private logical knowledge graph.
+- `POST /api/knowledge/ask` — answer from compressed local context with internal record citations.
+- `GET /api/portfolio` — portfolio value, health, and cross-domain overlap.
+- `GET /api/intelligence/recommendations` — confidence-scored Recommendation Engine v2 history.
+- `GET /api/intelligence/dashboard` — unified opportunities, portfolio, monitoring, activity, reminders, notes, and health.
+- `GET /api/timeline` — permanent research history.
+- `GET|POST /api/automation/rules` — user-configurable private workflow rules.
+- `POST /api/automation/execute` — idempotently execute matching rules for a private event.
+
 All responses use JSON except successful deletion, which returns no body. Validation failures use `{ "error": { "code": string, "message": string } }`.
 
 ## Analyze a domain

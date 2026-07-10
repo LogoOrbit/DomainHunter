@@ -1,0 +1,1 @@
+import{getKnowledgeIntelligenceService}from"@/server/src/knowledge/service";export async function POST(r:Request){const b=await r.json()as{question?:string;domainIds?:string[];companyIds?:string[]};if(!b.question)return Response.json({error:"question is required"},{status:400});return Response.json(await getKnowledgeIntelligenceService().ask({...b,question:b.question}))}

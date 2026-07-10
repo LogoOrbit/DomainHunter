@@ -1429,3 +1429,219 @@ model UpdateHistory {
   @@index([createdAt])
   @@map("update_history")
 }
+
+model KnowledgeGraph {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  version     Int      @default(1)
+  entityCount Int      @default(0) @map("entity_count")
+  edgeCount   Int      @default(0) @map("edge_count")
+  inputHash   String   @map("input_hash")
+  builtAt     DateTime @default(now()) @map("built_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("knowledge_graph")
+}
+
+model EntityRelationship {
+  id          String   @id @default(cuid())
+  graphId     String   @map("graph_id")
+  sourceType  String   @map("source_type")
+  sourceId    String   @map("source_id")
+  targetType  String   @map("target_type")
+  targetId    String   @map("target_id")
+  relation    String
+  direction   String   @default("DIRECTED")
+  evidence    Json
+  verified    Boolean  @default(true)
+  firstSeenAt DateTime @default(now()) @map("first_seen_at")
+  lastSeenAt  DateTime @default(now()) @map("last_seen_at")
+
+  @@unique([graphId, sourceType, sourceId, targetType, targetId, relation])
+  @@index([sourceType, sourceId])
+  @@index([targetType, targetId])
+  @@index([relation])
+  @@map("entity_relationships")
+}
+
+model RelationshipScore {
+  id             String   @id @default(cuid())
+  relationshipId String   @unique @map("relationship_id")
+  score          Int
+  confidence     Int
+  factors        Json
+  inputHash      String   @map("input_hash")
+  scoredAt       DateTime @default(now()) @map("scored_at")
+
+  @@index([score, confidence])
+  @@map("relationship_scores")
+}
+
+model KnowledgeCache {
+  id         String    @id @default(cuid())
+  cacheType  String    @map("cache_type")
+  entityType String    @map("entity_type")
+  entityId   String    @map("entity_id")
+  inputHash  String    @map("input_hash")
+  content    Json
+  createdAt  DateTime  @default(now()) @map("created_at")
+  expiresAt  DateTime? @map("expires_at")
+
+  @@unique([cacheType, entityType, entityId, inputHash])
+  @@index([entityType, entityId])
+  @@map("knowledge_cache")
+}
+
+model ResearchMemory {
+  id         String   @id @default(cuid())
+  memoryType String   @map("memory_type")
+  entityType String?  @map("entity_type")
+  entityId   String?  @map("entity_id")
+  title      String
+  content    Json
+  sourceIds  String[] @map("source_ids")
+  inputHash  String   @map("input_hash")
+  pinned     Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([memoryType, inputHash])
+  @@index([entityType, entityId])
+  @@map("research_memory")
+}
+
+model PortfolioRelationship {
+  id          String   @id @default(cuid())
+  domainAId   String   @map("domain_a_id")
+  domainBId   String   @map("domain_b_id")
+  overlapType String   @map("overlap_type")
+  score       Int
+  confidence  Int
+  sharedItems Json     @map("shared_items")
+  inputHash   String   @map("input_hash")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([domainAId, domainBId, overlapType])
+  @@index([score])
+  @@map("portfolio_relationships")
+}
+
+model RecommendationHistory {
+  id                 String   @id @default(cuid())
+  recommendationType String   @map("recommendation_type")
+  entityType         String?  @map("entity_type")
+  entityId           String?  @map("entity_id")
+  score              Int
+  confidence         Int
+  title              String
+  reasoning          String
+  evidence           Json
+  inputHash          String   @map("input_hash")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  @@unique([recommendationType, inputHash])
+  @@index([score, confidence, createdAt])
+  @@map("recommendation_history")
+}
+
+model IntelligenceTimeline {
+  id         String   @id @default(cuid())
+  eventType  String   @map("event_type")
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id")
+  title      String
+  details    Json
+  sourceId   String?  @map("source_id")
+  occurredAt DateTime @map("occurred_at")
+  recordedAt DateTime @default(now()) @map("recorded_at")
+
+  @@unique([eventType, entityType, entityId, sourceId])
+  @@index([occurredAt])
+  @@index([entityType, entityId, occurredAt])
+  @@map("intelligence_timeline")
+}
+
+model ResearchSnapshot {
+  id        String   @id @default(cuid())
+  scopeType String   @map("scope_type")
+  scopeId   String   @map("scope_id")
+  inputHash String   @map("input_hash")
+  snapshot  Json
+  checksum  String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([scopeType, scopeId, inputHash])
+  @@index([scopeType, scopeId, createdAt])
+  @@map("research_snapshots")
+}
+
+model CustomFieldDefinition {
+  id         String   @id @default(cuid())
+  entityType String   @map("entity_type")
+  key        String
+  name       String
+  fieldType  String   @map("field_type")
+  options    Json
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([entityType, key])
+  @@map("custom_field_definitions")
+}
+
+model CustomFieldValue {
+  id           String   @id @default(cuid())
+  definitionId String   @map("definition_id")
+  entityId     String   @map("entity_id")
+  value        Json
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([definitionId, entityId])
+  @@index([entityId])
+  @@map("custom_field_values")
+}
+
+model AutomationRule {
+  id          String    @id @default(cuid())
+  name        String
+  enabled     Boolean   @default(true)
+  triggerType String    @map("trigger_type")
+  conditions  Json
+  actions     Json
+  priority    Int       @default(50)
+  lastRunAt   DateTime? @map("last_run_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([enabled, triggerType, priority])
+  @@map("automation_rules")
+}
+
+model AutomationExecution {
+  id          String    @id @default(cuid())
+  ruleId      String    @map("rule_id")
+  eventId     String    @map("event_id")
+  status      String
+  results     Json
+  error       String?
+  startedAt   DateTime  @default(now()) @map("started_at")
+  completedAt DateTime? @map("completed_at")
+
+  @@unique([ruleId, eventId])
+  @@index([status, startedAt])
+  @@map("automation_executions")
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id")
+  outcome    String
+  metadata   Json
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@map("audit_events")
+}

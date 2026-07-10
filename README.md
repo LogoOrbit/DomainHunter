@@ -47,3 +47,5 @@ Milestone 6 adds a permanent CRM research workspace with projects, lead workflow
 Milestone 7 adds incremental opportunity monitoring, configurable rules and alerts, ranked recommendations, cached insight inputs, historical trends, and an automation dashboard built exclusively on public-source signals.
 
 Milestones 8–10 complete configurable integrations and scoring, executive analytics and reports, a database-first research workspace, verified backups, settings, maintenance and health tooling, offline application shell, import/export, diagnostics, Plugin SDK 1.0, and final production release checks. DomainHunter AI is now in maintenance mode.
+
+Milestones 11–12 add the private PostgreSQL knowledge graph, scored cross-entity relationships, cached research memory, cross-domain portfolio intelligence, recommendation history, internally cited research answers, permanent timeline, customizable unified dashboard, CRM custom fields, workflow automation, research snapshots, and audit records. Core architecture is complete and the project remains in maintenance and enhancement mode.

@@ -23,6 +23,9 @@ const links = [
   ["Plugins", "/plugins"],
   ["System health", "/health"],
   ["Command palette", "/command-palette"],
+  ["Portfolio", "/portfolio"],
+  ["Knowledge graph", "/knowledge-graph"],
+  ["Automation", "/automation"],
   ["Projects", "/projects"],
   ["Settings", "/settings"],
 ] as const;

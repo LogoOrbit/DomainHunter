@@ -6,7 +6,7 @@ import { validatePluginManifest } from "../plugins/sdk.ts";
 
 const hash = (v: unknown) => createHash("sha256").update(JSON.stringify(v)).digest("hex");
 const json = (v: unknown) => v as Prisma.InputJsonValue;
-const version = "1.0.0";
+const version = "1.1.0";
 function secretKey() { const configured = process.env.CONFIG_ENCRYPTION_KEY; if (!configured) return null; return createHash("sha256").update(configured).digest(); }
 function encrypt(value: unknown) { const key = secretKey(); if (!key) throw new Error("CONFIG_ENCRYPTION_KEY is required to store credentials"); const iv = randomBytes(12); const cipher = createCipheriv("aes-256-gcm", key, iv); const encrypted = Buffer.concat([cipher.update(JSON.stringify(value)), cipher.final()]); return `${iv.toString("base64")}.${cipher.getAuthTag().toString("base64")}.${encrypted.toString("base64")}`; }
 type LocalContext = { company: { name: string; description: string | null; scores: Array<{ buyerScore: number }> } | null; domain: { displayName: string; companyScores: unknown[] } | null; valuation: { fairEstimate: number } | null };

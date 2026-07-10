@@ -1,0 +1,1 @@
+import{AppShell}from"../components/app-shell";import{DataWorkspace}from"../components/data-workspace";export default function Page(){return <AppShell eyebrow="Private workflows" title="Automation rules"><DataWorkspace endpoint="/api/automation/rules"/></AppShell>}

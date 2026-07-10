@@ -1,0 +1,1 @@
+import{AppShell}from"../components/app-shell";import{DataWorkspace}from"../components/data-workspace";export default function Page(){return <AppShell eyebrow="Private logical graph" title="Knowledge graph"><DataWorkspace endpoint="/api/knowledge/graph"/></AppShell>}

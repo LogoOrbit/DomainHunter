@@ -1,0 +1,1 @@
+import{getKnowledgeIntelligenceService}from"@/server/src/knowledge/service";export const dynamic="force-dynamic";export async function GET(){return Response.json({portfolio:await getKnowledgeIntelligenceService().portfolio()})}
