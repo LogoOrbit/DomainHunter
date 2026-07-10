@@ -10,6 +10,13 @@ const links = [
   ["Outreach", "/outreach"],
   ["Negotiation", "/negotiation"],
   ["Analytics", "/analytics"],
+  ["Opportunities", "/opportunities"],
+  ["Recommendations", "/recommendations"],
+  ["Monitoring", "/monitoring"],
+  ["Alerts", "/alerts"],
+  ["Trends", "/trends"],
+  ["Watchlists", "/watchlists"],
+  ["Reminders", "/reminders"],
   ["Projects", "/projects"],
   ["Settings", "/settings"],
 ] as const;

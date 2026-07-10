@@ -1,0 +1,1 @@
+import { AppShell } from "../components/app-shell"; import { DataWorkspace } from "../components/data-workspace"; export default function Page() { return <AppShell eyebrow="Historical signals" title="Trend analysis"><DataWorkspace endpoint="/api/trends" domainFilter /></AppShell>; }

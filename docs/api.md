@@ -19,6 +19,26 @@
 - `GET /api/notifications` — recent discovery notifications.
 - `GET /api/company/changes/:companyId` — detected public company changes.
 
+## Research workspace and CRM
+
+- `GET|POST /api/projects` and `PUT|DELETE /api/projects/:id` — manage independent research projects.
+- `GET /api/companies/:id` — detailed public company intelligence, timeline, notes, CRM state, and buyer reasoning.
+- `POST /api/company/notes` — add private Markdown research notes.
+- `GET|POST /api/watchlists`, `/api/saved-searches`, and `/api/reminders` — organize reusable research.
+- `GET /api/search?q=...` — partial and multi-term global workspace search.
+- `POST /api/companies/compare` — compare up to eight companies.
+- `PUT /api/leads/:id` — update CRM status, priority, follow-up, favorite, and manual score.
+- `GET /api/activity` and `/api/favorites` — audit activity and prioritized leads.
+
+## Opportunity monitoring
+
+- `POST /api/monitoring/start` and `/api/monitoring/stop` — start or cancel an incremental monitoring cycle.
+- `GET /api/monitoring/status` — recent monitoring jobs and progress.
+- `GET|POST /api/monitoring/rules` — configure domain frequency, priority, thresholds, exclusions, and concurrency.
+- `GET /api/opportunities` and `/api/recommendations` — paginated, ranked opportunity intelligence.
+- `GET /api/alerts` and `POST /api/alerts/preferences` — alerts and per-type delivery preferences.
+- `GET /api/trends` — historical buyer, industry, and country snapshots.
+
 All responses use JSON except successful deletion, which returns no body. Validation failures use `{ "error": { "code": string, "message": string } }`.
 
 ## Analyze a domain

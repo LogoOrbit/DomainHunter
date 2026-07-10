@@ -1,0 +1,1 @@
+import { getOpportunityMonitoringService } from "@/server/src/monitoring/service"; export const dynamic = "force-dynamic"; export async function GET(request: Request) { return Response.json({ trends: await getOpportunityMonitoringService().trends(new URL(request.url).searchParams.get("domainId") ?? undefined) }); }

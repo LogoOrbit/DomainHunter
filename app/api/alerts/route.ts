@@ -1,0 +1,1 @@
+import { getOpportunityMonitoringService } from "@/server/src/monitoring/service"; export const dynamic = "force-dynamic"; export async function GET(request: Request) { const p = new URL(request.url).searchParams; return Response.json({ alerts: await getOpportunityMonitoringService().alerts({ unread: p.get("unread") === "true", take: Number(p.get("take") ?? 25) }) }); }

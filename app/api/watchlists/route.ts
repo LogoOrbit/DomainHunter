@@ -1,0 +1,3 @@
+import { getResearchWorkspaceService } from "@/server/src/workspace/service"; export const dynamic = "force-dynamic";
+export async function GET() { return Response.json({ watchlists: await getResearchWorkspaceService().watchlists() }); }
+export async function POST(request: Request) { const body = await request.json() as { name?: string; description?: string; companyIds?: string[]; filters?: unknown }; if (!body.name) return Response.json({ error: "name is required" }, { status: 400 }); return Response.json({ watchlist: await getResearchWorkspaceService().createWatchlist({ ...body, name: body.name }) }, { status: 201 }); }

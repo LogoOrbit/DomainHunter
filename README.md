@@ -41,3 +41,7 @@ Milestone 3 adds durable public lead scans, independent GitHub and Wikidata conn
 Milestone 4 adds cached domain valuation, explainable buyer rankings, draft-only outreach generation, negotiation plans, pricing history, and analytics snapshots. Verified public evidence is kept separate from model estimates.
 
 Milestone 5 adds a durable priority queue, worker state, connector health and statistics, scan progress/history, schedules, company change records, and notifications for continuous public-data discovery.
+
+Milestone 6 adds a permanent CRM research workspace with projects, lead workflow, detailed company intelligence, notes, reminders, watchlists, saved searches, comparison, attachments, tags, favorites, and activity history.
+
+Milestone 7 adds incremental opportunity monitoring, configurable rules and alerts, ranked recommendations, cached insight inputs, historical trends, and an automation dashboard built exclusively on public-source signals.

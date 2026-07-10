@@ -1,0 +1,1 @@
+import { getOpportunityMonitoringService } from "@/server/src/monitoring/service"; export async function POST(request: Request) { const { jobId } = await request.json() as { jobId?: string }; if (!jobId) return Response.json({ error: "jobId is required" }, { status: 400 }); return Response.json({ job: await getOpportunityMonitoringService().stop(jobId) }); }

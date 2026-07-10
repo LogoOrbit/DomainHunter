@@ -1,0 +1,3 @@
+import { getResearchWorkspaceService } from "@/server/src/workspace/service"; export const dynamic = "force-dynamic";
+export async function GET() { return Response.json({ reminders: await getResearchWorkspaceService().reminders() }); }
+export async function POST(request: Request) { const body = await request.json() as { title?: string; dueAt?: string; description?: string; projectId?: string; companyId?: string }; if (!body.title || !body.dueAt) return Response.json({ error: "title and dueAt are required" }, { status: 400 }); return Response.json({ reminder: await getResearchWorkspaceService().reminder({ ...body, title: body.title, dueAt: body.dueAt }) }, { status: 201 }); }

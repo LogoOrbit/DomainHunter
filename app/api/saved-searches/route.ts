@@ -1,0 +1,3 @@
+import { getResearchWorkspaceService } from "@/server/src/workspace/service"; export const dynamic = "force-dynamic";
+export async function GET() { return Response.json({ savedSearches: await getResearchWorkspaceService().savedSearches() }); }
+export async function POST(request: Request) { const body = await request.json() as { name?: string; projectId?: string; query?: string; filters?: unknown; sort?: unknown }; if (!body.name) return Response.json({ error: "name is required" }, { status: 400 }); return Response.json({ savedSearch: await getResearchWorkspaceService().saveSearch({ ...body, name: body.name }) }, { status: 201 }); }

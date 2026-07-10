@@ -1,0 +1,1 @@
+import { AppShell } from "../components/app-shell"; import { DataWorkspace } from "../components/data-workspace"; export default function Page() { return <AppShell eyebrow="Intelligence inbox" title="Alerts"><DataWorkspace endpoint="/api/alerts" /></AppShell>; }

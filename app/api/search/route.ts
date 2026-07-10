@@ -1,0 +1,2 @@
+import { getResearchWorkspaceService } from "@/server/src/workspace/service"; export const dynamic = "force-dynamic";
+export async function GET(request: Request) { const params = new URL(request.url).searchParams; const query = params.get("q") ?? ""; if (!query.trim()) return Response.json({ error: "q is required" }, { status: 400 }); return Response.json(await getResearchWorkspaceService().search(query, Number(params.get("take") ?? 30))); }

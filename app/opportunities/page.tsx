@@ -1,0 +1,1 @@
+import { AppShell } from "../components/app-shell"; import { DataWorkspace } from "../components/data-workspace"; export default function Page() { return <AppShell eyebrow="Today's intelligence" title="Opportunity center"><DataWorkspace endpoint="/api/opportunities" domainFilter /></AppShell>; }

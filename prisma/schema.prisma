@@ -63,6 +63,30 @@ enum NotificationType {
   SCAN_FAILED
 }
 
+enum LeadStatus {
+  NEW
+  RESEARCHING
+  QUALIFIED
+  HIGH_PRIORITY
+  CONTACT_PLANNED
+  CONTACTED
+  FOLLOW_UP_SCHEDULED
+  NEGOTIATING
+  OFFER_SENT
+  NOT_INTERESTED
+  SOLD
+  ARCHIVED
+}
+
+enum MonitoringStatus {
+  QUEUED
+  RUNNING
+  PAUSED
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
 model Project {
   id          String         @id @default(cuid())
   name        String
@@ -697,4 +721,343 @@ model ScanSchedule {
 
   @@index([enabled, nextRunAt])
   @@map("scan_schedules")
+}
+
+model ProjectDomain {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  domainId  String   @map("domain_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([projectId, domainId])
+  @@index([domainId])
+  @@map("project_domains")
+}
+
+model ProjectCompany {
+  id              String     @id @default(cuid())
+  projectId       String     @map("project_id")
+  companyId       String     @map("company_id")
+  status          LeadStatus @default(NEW)
+  priority        Int        @default(50)
+  favorite        Boolean    @default(false)
+  manualScore     Int?       @map("manual_score")
+  privateComments String?    @map("private_comments")
+  reminderDate    DateTime?  @map("reminder_date")
+  lastReviewedAt  DateTime?  @map("last_reviewed_at")
+  lastContactedAt DateTime?  @map("last_contacted_at")
+  followUpAt      DateTime?  @map("follow_up_at")
+  archivedAt      DateTime?  @map("archived_at")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  @@unique([projectId, companyId])
+  @@index([projectId, status, priority])
+  @@map("project_companies")
+}
+
+model ProjectNote {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  title     String
+  content   String
+  pinned    Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([projectId, pinned, updatedAt])
+  @@map("project_notes")
+}
+
+model CompanyNote {
+  id        String   @id @default(cuid())
+  companyId String   @map("company_id")
+  projectId String?  @map("project_id")
+  title     String
+  content   String
+  pinned    Boolean  @default(false)
+  private   Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([companyId, pinned, updatedAt])
+  @@map("company_notes")
+}
+
+model Attachment {
+  id         String   @id @default(cuid())
+  projectId  String?  @map("project_id")
+  companyId  String?  @map("company_id")
+  noteId     String?  @map("note_id")
+  fileName   String   @map("file_name")
+  mediaType  String   @map("media_type")
+  storageKey String   @unique @map("storage_key")
+  sizeBytes  Int      @map("size_bytes")
+  checksum   String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([projectId])
+  @@index([companyId])
+  @@map("attachments")
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("tags")
+}
+
+model CompanyTag {
+  companyId String @map("company_id")
+  tagId     String @map("tag_id")
+
+  @@id([companyId, tagId])
+  @@index([tagId])
+  @@map("company_tags")
+}
+
+model SavedSearch {
+  id        String   @id @default(cuid())
+  projectId String?  @map("project_id")
+  name      String
+  query     String?
+  filters   Json
+  sort      Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([projectId, updatedAt])
+  @@map("saved_searches")
+}
+
+model Watchlist {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  filters     Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("watchlists")
+}
+
+model WatchlistItem {
+  id          String   @id @default(cuid())
+  watchlistId String   @map("watchlist_id")
+  companyId   String   @map("company_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([watchlistId, companyId])
+  @@index([companyId])
+  @@map("watchlist_items")
+}
+
+model LeadStatusHistory {
+  id               String      @id @default(cuid())
+  projectCompanyId String      @map("project_company_id")
+  previousStatus   LeadStatus? @map("previous_status")
+  currentStatus    LeadStatus  @map("current_status")
+  reason           String?
+  createdAt        DateTime    @default(now()) @map("created_at")
+
+  @@index([projectCompanyId, createdAt])
+  @@map("lead_status_history")
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  projectId  String?  @map("project_id")
+  companyId  String?  @map("company_id")
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id")
+  details    Json
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([projectId, createdAt])
+  @@index([companyId, createdAt])
+  @@map("activity_log")
+}
+
+model Reminder {
+  id          String    @id @default(cuid())
+  projectId   String?   @map("project_id")
+  companyId   String?   @map("company_id")
+  title       String
+  description String?
+  dueAt       DateTime  @map("due_at")
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([completedAt, dueAt])
+  @@map("reminders")
+}
+
+model ComparisonSet {
+  id         String   @id @default(cuid())
+  name       String
+  companyIds String[] @map("company_ids")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("comparison_sets")
+}
+
+model MonitoringRule {
+  id                      String   @id @default(cuid())
+  domainId                String   @unique @map("domain_id")
+  frequency               String   @default("DAILY")
+  priority                Int      @default(50)
+  enabled                 Boolean  @default(true)
+  ignoredIndustries       String[] @map("ignored_industries")
+  ignoredCountries        String[] @map("ignored_countries")
+  minimumBuyerScore       Int      @default(60) @map("minimum_buyer_score")
+  minimumConfidence       Int      @default(50) @map("minimum_confidence")
+  maximumConcurrentJobs   Int      @default(2) @map("maximum_concurrent_jobs")
+  notificationPreferences Json     @map("notification_preferences")
+  lastInputHash           String?  @map("last_input_hash")
+  nextRunAt               DateTime @map("next_run_at")
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  @@index([enabled, nextRunAt])
+  @@map("monitoring_rules")
+}
+
+model MonitoringJob {
+  id          String           @id @default(cuid())
+  ruleId      String?          @map("rule_id")
+  domainId    String           @map("domain_id")
+  scanJobId   String?          @map("scan_job_id")
+  status      MonitoringStatus @default(QUEUED)
+  inputHash   String           @map("input_hash")
+  priority    Int              @default(50)
+  progress    Int              @default(0)
+  error       String?
+  requestedAt DateTime         @default(now()) @map("requested_at")
+  startedAt   DateTime?        @map("started_at")
+  completedAt DateTime?        @map("completed_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  @@index([status, priority, requestedAt])
+  @@index([domainId, requestedAt])
+  @@map("monitoring_jobs")
+}
+
+model MonitoringHistory {
+  id              String   @id @default(cuid())
+  monitoringJobId String   @map("monitoring_job_id")
+  event           String
+  details         Json
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([monitoringJobId, createdAt])
+  @@map("monitoring_history")
+}
+
+model Opportunity {
+  id         String   @id @default(cuid())
+  domainId   String   @map("domain_id")
+  companyId  String?  @map("company_id")
+  type       String
+  inputHash  String   @map("input_hash")
+  score      Int
+  confidence Int
+  priority   String
+  reason     String
+  evidence   Json
+  status     String   @default("OPEN")
+  detectedAt DateTime @default(now()) @map("detected_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([domainId, companyId, type, inputHash])
+  @@index([status, score, detectedAt])
+  @@map("opportunities")
+}
+
+model Recommendation {
+  id               String    @id @default(cuid())
+  domainId         String?   @map("domain_id")
+  companyId        String?   @map("company_id")
+  type             String
+  inputHash        String    @map("input_hash")
+  score            Int
+  title            String
+  explanation      String
+  suggestedActions String[]  @map("suggested_actions")
+  evidence         Json
+  createdAt        DateTime  @default(now()) @map("created_at")
+  expiresAt        DateTime? @map("expires_at")
+
+  @@unique([type, inputHash])
+  @@index([score, createdAt])
+  @@map("recommendations")
+}
+
+model Alert {
+  id            String    @id @default(cuid())
+  type          String
+  domainId      String?   @map("domain_id")
+  companyId     String?   @map("company_id")
+  opportunityId String?   @map("opportunity_id")
+  title         String
+  message       String
+  severity      String
+  data          Json
+  readAt        DateTime? @map("read_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@index([readAt, createdAt])
+  @@map("alerts")
+}
+
+model AlertPreference {
+  id        String   @id @default(cuid())
+  alertType String   @unique @map("alert_type")
+  inApp     Boolean  @default(true) @map("in_app")
+  email     Boolean  @default(false)
+  threshold Int?
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("alert_preferences")
+}
+
+model TrendSnapshot {
+  id         String   @id @default(cuid())
+  domainId   String?  @map("domain_id")
+  period     String
+  capturedAt DateTime @default(now()) @map("captured_at")
+  metrics    Json
+
+  @@index([domainId, capturedAt])
+  @@map("trend_snapshots")
+}
+
+model InsightCache {
+  id         String    @id @default(cuid())
+  entityType String    @map("entity_type")
+  entityId   String    @map("entity_id")
+  inputHash  String    @map("input_hash")
+  insight    Json
+  createdAt  DateTime  @default(now()) @map("created_at")
+  expiresAt  DateTime? @map("expires_at")
+
+  @@unique([entityType, entityId, inputHash])
+  @@map("insight_cache")
+}
+
+model NotificationHistory {
+  id          String   @id @default(cuid())
+  alertId     String?  @map("alert_id")
+  channel     String
+  status      String
+  destination String?
+  error       String?
+  attemptedAt DateTime @default(now()) @map("attempted_at")
+
+  @@index([alertId, attemptedAt])
+  @@map("notification_history")
 }
