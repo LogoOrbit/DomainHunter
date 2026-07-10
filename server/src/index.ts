@@ -1,3 +1,4 @@
+import "./load-env.ts";
 import { buildApp } from "./app.ts";
 import { loadConfig } from "./config.ts";
 
