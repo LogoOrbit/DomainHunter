@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SearchStatus {
+  QUEUED
+  RUNNING
+  PAUSED
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model Project {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+  searches    DomainSearch[]
+
+  @@index([createdAt])
+  @@map("projects")
+}
+
+model Domain {
+  id          String         @id @default(cuid())
+  asciiName   String         @unique @map("ascii_name")
+  displayName String         @map("display_name")
+  label       String
+  tld         String
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+  searches    DomainSearch[]
+
+  @@index([label])
+  @@index([tld])
+  @@map("domains")
+}
+
+model DomainSearch {
+  id          String       @id @default(cuid())
+  projectId   String?      @map("project_id")
+  domainId    String       @map("domain_id")
+  status      SearchStatus @default(QUEUED)
+  startedAt   DateTime?    @map("started_at")
+  completedAt DateTime?    @map("completed_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  project     Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  domain      Domain       @relation(fields: [domainId], references: [id], onDelete: Restrict)
+
+  @@index([projectId, createdAt])
+  @@index([domainId, status])
+  @@index([status, createdAt])
+  @@map("domain_searches")
+}
